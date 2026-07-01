@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ログスクライブ AI | AI議事録・作業ログ自動整理ツール</title>
+<meta name="description" content="音声やメモをAIが自動で要約・整理。会議の議事録も日々の作業ログも、ログスクライブAIにまかせて時短しよう。">
+<style>
+  :root{
+    --grad1:#1e3c72;
+    --grad2:#2a5298;
+    --accent:#ffd166;
+    --dark:#0f1f3d;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Yu Gothic UI',sans-serif;
+    color:#1c2333;
+    line-height:1.7;
+    background:#f6f8fc;
+  }
+  a{text-decoration:none;}
+  .container{max-width:960px;margin:0 auto;padding:0 20px;}
+
+  .hero{
+    background:linear-gradient(135deg,var(--grad1) 0%,var(--grad2) 100%);
+    color:#fff;
+    padding:90px 20px 100px;
+    text-align:center;
+    position:relative;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    bottom:-40px;left:0;right:0;
+    height:80px;
+    background:#f6f8fc;
+    border-radius:50% 50% 0 0/60px 60px 0 0;
+  }
+  .badge{
+    display:inline-block;
+    background:rgba(255,209,102,0.2);
+    border:1px solid var(--accent);
+    color:var(--accent);
+    padding:6px 18px;
+    border-radius:999px;
+    font-size:0.85rem;
+    margin-bottom:24px;
+  }
+  .hero h1{font-size:2.4rem;font-weight:800;margin-bottom:18px;line-height:1.5;}
+  .hero p.sub{font-size:1.1rem;opacity:0.95;max-width:640px;margin:0 auto 36px;}
+  .cta-btn{
+    display:inline-block;
+    background:var(--accent);
+    color:var(--dark);
+    font-weight:700;
+    padding:16px 40px;
+    border-radius:999px;
+    font-size:1.05rem;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    transition:transform .2s ease;
+  }
+  .cta-btn:hover{transform:translateY(-3px);}
+
+  section{padding:70px 20px;}
+  h2.section-title{
+    text-align:center;
+    font-size:1.7rem;
+    font-weight:800;
+    margin-bottom:48px;
+    color:var(--dark);
+  }
+  h2.section-title span{
+    display:block;
+    font-size:0.9rem;
+    font-weight:500;
+    color:var(--grad2);
+    margin-top:8px;
+    letter-spacing:2px;
+  }
+
+  .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .pain-card{
+    background:#fff;
+    border-radius:16px;
+    padding:32px 24px;
+    box-shadow:0 6px 20px rgba(30,60,114,0.1);
+    border-top:4px solid var(--accent);
+  }
+  .pain-card .icon{font-size:2.2rem;margin-bottom:12px;}
+  .pain-card h3{font-size:1.05rem;margin-bottom:10px;color:var(--dark);}
+  .pain-card p{font-size:0.92rem;color:#555;}
+
+  .features{background:linear-gradient(180deg,#fff,#eef2fa);}
+  .feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+  .feature-card{
+    background:#fff;
+    padding:28px;
+    border-radius:16px;
+    box-shadow:0 6px 20px rgba(30,60,114,0.1);
+    display:flex;gap:16px;align-items:flex-start;
+  }
+  .feature-card .icon{
+    font-size:1.8rem;
+    background:linear-gradient(135deg,var(--grad1),var(--grad2));
+    width:52px;height:52px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .feature-card h3{font-size:1.02rem;margin-bottom:6px;color:var(--dark);}
+  .feature-card p{font-size:0.9rem;color:#555;}
+
+  .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .price-card{
+    background:#fff;
+    border-radius:20px;
+    padding:36px 26px;
+    text-align:center;
+    box-shadow:0 8px 24px rgba(30,60,114,0.12);
+    border:2px solid transparent;
+  }
+  .price-card.popular{
+    border-color:var(--grad2);
+    transform:scale(1.05);
+    position:relative;
+  }
+  .price-card.popular::before{
+    content:"人気No.1";
+    position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+    background:var(--accent);color:var(--dark);font-size:0.75rem;padding:4px 16px;border-radius:999px;
+    font-weight:700;
+  }
+  .price-card h3{font-size:1.1rem;margin-bottom:10px;color:var(--dark);}
+  .price-card .price{font-size:2.1rem;font-weight:800;color:var(--grad1);margin-bottom:6px;}
+  .price-card .price small{font-size:0.9rem;font-weight:500;color:#888;}
+  .price-card ul{list-style:none;text-align:left;margin:20px 0;font-size:0.88rem;color:#555;}
+  .price-card ul li{margin-bottom:8px;padding-left:22px;position:relative;}
+  .price-card ul li::before{content:"✓";position:absolute;left:0;color:var(--grad2);font-weight:700;}
+
+  .cta-section{
+    background:linear-gradient(135deg,var(--grad1) 0%,var(--grad2) 100%);
+    color:#fff;text-align:center;
+  }
+  .cta-section h2{font-size:1.8rem;margin-bottom:16px;font-weight:800;}
+  .cta-section p{margin-bottom:32px;opacity:0.95;}
+
+  footer{background:var(--dark);color:#a9b6d6;text-align:center;padding:36px 20px;font-size:0.85rem;}
+  footer a{color:#fff;}
+
+  @media (max-width:720px){
+    .hero h1{font-size:1.7rem;}
+    .pain-grid,.feature-grid,.pricing-grid{grid-template-columns:1fr;}
+    .price-card.popular{transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <span class="badge">🎙️ 打ち合わせ・作業ログが多い方向け</span>
+    <h1>録音したまま、放置してませんか？<br>その音声、AIが議事録にします。</h1>
+    <p class="sub">ログスクライブAIは、会議の音声や日々のメモをAIが自動で文字起こし・要約・タスク抽出まで整理してくれるツールです。</p>
+    <a class="cta-btn" href="https://ai-log-organizer-jp.fly.dev/" target="_blank">無料で今すぐ試す（無料体験版）</a>
+  </div>
+</header>
+
+<section class="pain">
+  <div class="container">
+    <h2 class="section-title">こんなお悩みありませんか？<span>COMMON PROBLEMS</span></h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="icon">🎧</div>
+        <h3>録音データが聞き返されないまま溜まる</h3>
+        <p>打ち合わせを録音しても、後で聞き直す時間がなくそのまま放置。</p>
+      </div>
+      <div class="pain-card">
+        <div class="icon">📝</div>
+        <h3>議事録作成に毎回1時間以上</h3>
+        <p>文字起こしから要約まで手作業でやると、本業の時間が圧迫される。</p>
+      </div>
+      <div class="pain-card">
+        <div class="icon">🔍</div>
+        <h3>過去のメモや決定事項が探せない</h3>
+        <p>「あの件どうなったっけ」を確認するのに毎回時間がかかる。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2 class="section-title">ログスクライブAIの機能<span>FEATURES</span></h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">🎙️</div>
+        <div><h3>音声から自動文字起こし</h3><p>録音ファイルをアップロードするだけで高精度に文字起こし。</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🧠</div>
+        <div><h3>AI要約・議事録生成</h3><p>長い会話も要点だけを抽出し、読みやすい議事録に自動整形。</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="icon">✅</div>
+        <div><h3>タスク自動抽出</h3><p>会話の中の「やること」を検出し、ToDoリストとして書き出します。</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔎</div>
+        <div><h3>横断検索機能</h3><p>過去のすべてのログをキーワードで一括検索できます。</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📤</div>
+        <div><h3>Slack・メール自動共有</h3><p>整理したログをワンクリックでチームに共有できます。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing">
+  <div class="container">
+    <h2 class="section-title">料金プラン<span>PRICING</span></h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>ライトプラン</h3>
+        <div class="price">¥980<small>/月</small></div>
+        <ul>
+          <li>月10ログまで文字起こし</li>
+          <li>AI要約機能</li>
+        </ul>
+      </div>
+      <div class="price-card popular">
+        <h3>スタンダードプラン</h3>
+        <div class="price">¥2,980<small>/月</small></div>
+        <ul>
+          <li>月50ログまで文字起こし</li>
+          <li>タスク自動抽出機能</li>
+          <li>横断検索・共有機能</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <h3>買い切りプラン</h3>
+        <div class="price">¥3,980<small>/一括</small></div>
+        <ul>
+          <li>全機能を永久利用</li>
+          <li>ログ保存 無制限</li>
+          <li>今後のアップデート無料</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <h2>「議事録、後でやろう」を今日で終わりにする。</h2>
+    <p>先行登録いただいた方には正式リリース時に特典をご案内します。</p>
+    <a class="cta-btn" href="https://ai-log-organizer-jp.fly.dev/" target="_blank">無料で今すぐ試す（無料体験版）</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2026 ログスクライブAI. All rights reserved.</p>
+    <p><a href="mailto:suico415@gmail.com">suico415@gmail.com</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
